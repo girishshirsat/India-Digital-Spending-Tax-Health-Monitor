@@ -1,0 +1,13 @@
+pandas
+requests
+beautifulsoup4
+lxml
+openpyxl
+pyarrow
+SQLAlchemy
+psycopg2-binary
+python-dotenv
+streamlit
+plotly
+pytest
+jupyterlab
