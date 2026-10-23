@@ -37,4 +37,4 @@ Python, pandas, PostgreSQL (local + Neon), SQL, Streamlit, Tableau Public, Power
 ## License
 MIT. Data belongs to its original publishers.
 
-Author: <Girish Shirsath>, <girishshisath2004@gmail.com>
+Author: Girish Shirsath, <girishshisath2004@gmail.com>
