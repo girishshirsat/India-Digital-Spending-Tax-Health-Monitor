@@ -9,7 +9,7 @@
 - All 36 state/UT folders load for 2024 Q4.
 
 ## 2. GST filing (NDAP)
-- File: `Goods and Service Tax Returns.csv`, downloaded on <download date>.
+- File: `Goods and Service Tax Returns.csv`, downloaded on 22 October 2026.
 - 7,828 rows, 12 columns, monthly, July 2017 to January 2026, GSTR-1 and GSTR-3B rows.
 - 38 state names: 36 real states/UTs plus "Other Territory" (dropped).
 - Filing counts, not rupees.
