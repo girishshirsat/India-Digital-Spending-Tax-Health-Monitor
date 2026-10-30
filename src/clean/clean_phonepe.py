@@ -3,6 +3,7 @@ import json
 
 from src.config import PHONEPE_DIR, STATE_LIST,YEARS, QUARTERS
 from src.utils.logger import get_logger
+from src.clean.state_utils import normalize_name
 
 logger = get_logger(__name__)
 
@@ -40,6 +41,9 @@ def load_all():
     df=pd.concat(frames, ignore_index=True)
     logger.info(f"Loaded {len(df)} rows from PhonePe")
 
+
+    df["state"] = df["state"].apply(normalize_name)
+
     return df
 
 def build_totals(df):
@@ -56,5 +60,5 @@ def build_totals(df):
 if __name__ == "__main__":
     df = load_all()
     totals = build_totals(df)
-    print(df.shape, totals.shape)
+    print(df["state"].nunique(), totals["state"].nunique())
     print(totals.duplicated(["state", "year", "quarter"]).sum())
