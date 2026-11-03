@@ -1,7 +1,7 @@
 import pandas as pd
 import json
 
-from src.config import PHONEPE_DIR, STATE_LIST,YEARS, QUARTERS
+from src.config import PHONEPE_DIR, STATE_LIST,YEARS, QUARTERS, PROCESSED_DIR
 from src.utils.logger import get_logger
 from src.clean.state_utils import normalize_name
 
@@ -90,9 +90,37 @@ def flag_drops(totals):
     ]
 
 
+def save_phonepe(df, totals):
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+
+    by_type_path = PROCESSED_DIR / "phonepe_by_type.parquet"
+    totals_path = PROCESSED_DIR / "phonepe_state_quarter.parquet"
+
+    df.to_parquet(by_type_path, index=False)
+    totals.to_parquet(totals_path, index=False)
+
+    logger.info(
+        f"Saved PhonePe by-type: {len(df)} rows | "
+        f"State-quarter totals: {len(totals)} rows"
+    )
+
+
 
 if __name__ == "__main__":
     df = load_all()
-    totals = flag_drops(build_totals(df))
+
+    totals = build_totals(df)
+
     check_totals(totals)
-    print(totals.shape, totals["big_drop"].sum())
+
+    flagged = flag_drops(totals)
+
+    print("\nTotal big drops:", flagged["big_drop"].sum())
+
+    print(
+        flagged[flagged["big_drop"]][
+            ["state", "year", "quarter"]
+        ]
+    )
+
+    save_phonepe(df, flagged)
