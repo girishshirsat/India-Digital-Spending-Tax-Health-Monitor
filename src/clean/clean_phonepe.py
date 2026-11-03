@@ -55,10 +55,44 @@ def build_totals(df):
 
     return totals_df
 
+def check_totals(totals):
+    print("nulls:", totals.isna().sum())
+    invalid_rows = (
+        (totals["total_count"] <= 0) |
+        (totals["total_amount"] <= 0)
+    ).sum()
+
+    print("zero or negative rows:", invalid_rows) 
+    t = totals.sort_values(["state", "year", "quarter"]).copy()
+
+    t["qoq"] = t.groupby("state")["total_amount"].pct_change()
+
+    print("\nBiggest QoQ drops:")
+    print(
+        t.nsmallest(5, "qoq")[
+            ["state", "year", "quarter", "qoq"]
+        ]
+    )
+
+
+def flag_drops(totals):
+    t = totals.sort_values(
+        ["state", "year", "quarter"]
+    ).copy()
+
+    t["qoq"] = t.groupby("state")["total_amount"].pct_change()
+
+    t["big_drop"] = t["qoq"] < -0.3
+
+    return t[
+        ["state", "year", "quarter", "total_count",
+         "total_amount", "big_drop"]
+    ]
+
 
 
 if __name__ == "__main__":
     df = load_all()
-    totals = build_totals(df)
-    print(df["state"].nunique(), totals["state"].nunique())
-    print(totals.duplicated(["state", "year", "quarter"]).sum())
+    totals = flag_drops(build_totals(df))
+    check_totals(totals)
+    print(totals.shape, totals["big_drop"].sum())
