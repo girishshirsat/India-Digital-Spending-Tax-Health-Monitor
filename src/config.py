@@ -5,6 +5,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 RAW_DIR=ROOT/"data"/"raw"
 SNAPSHOT_DIR=ROOT/"data"/"snapshot"
+PROCESSED_DIR = ROOT / "data" / "processed"
 
 PHONEPE_DIR = RAW_DIR / "phonepe"
 NDAP_DIR = RAW_DIR / "ndap_gst"
