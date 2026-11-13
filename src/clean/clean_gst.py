@@ -55,10 +55,19 @@ def clean_states(gstdata):
     return df_clean
 
 
+
+COUNT_COLS = ["eligible", "on_time", "late", "total_filed"]
+
+def merge_dadra_daman(df):
+    before = len(df)
+    merged = df.groupby(["state","return_type","month"])[COUNT_COLS].sum(min_count=1).reset_index()
+    logger.info(f"length before merge {before}, length after merge {len(merged)}")
+    return merged
+
+
 if __name__ == "__main__":
     gstdata = load_gst()
     gstdata_clean = clean_states(gstdata)
-    print(gstdata_clean.head())
-    print(gstdata_clean.shape)
-    print(gstdata_clean["state"].nunique())
-    print(gstdata_clean["state"].value_counts().head(3))
+    merged=merge_dadra_daman(gstdata_clean)
+    print(len(merged))
+    print((merged["state"].value_counts() == 206).all())
