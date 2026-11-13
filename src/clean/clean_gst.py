@@ -65,9 +65,31 @@ def merge_dadra_daman(df):
     return merged
 
 
+def to_quarters(df):
+    data = df.copy()
+    initial_rows = len(data)
+
+    dt = pd.to_datetime(data["month"], format="%B, %Y")
+    data["year"] = dt.dt.year
+    data["quarter"] = dt.dt.quarter
+
+    data = data[data["year"].between(2018, 2024)].copy()
+    logger.info(f"Dropped {initial_rows - len(data)} rows outside 2018-2024 window")
+
+    group_cols = ["state", "year", "quarter", "return_type"]
+    quarterly = data.groupby(group_cols, as_index=False)[COUNT_COLS].sum(min_count=1)
+
+    assert not quarterly.duplicated(subset=group_cols).any(), "Duplicate quarter rows found"
+    logger.info(f"Aggregated to {len(quarterly)} quarterly rows")
+
+    return quarterly
+
+
 if __name__ == "__main__":
     gstdata = load_gst()
     gstdata_clean = clean_states(gstdata)
-    merged=merge_dadra_daman(gstdata_clean)
-    print(len(merged))
-    print((merged["state"].value_counts() == 206).all())
+    merged = merge_dadra_daman(gstdata_clean)
+    quarterly = to_quarters(merged)
+    print(quarterly.shape)
+    print(quarterly["year"].min(), quarterly["year"].max())
+    print(sorted(quarterly["quarter"].unique()))
