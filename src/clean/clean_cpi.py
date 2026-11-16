@@ -35,6 +35,37 @@ def to_quarterly(cpi):
 
     return quarterly
 
+
+
+def add_yoy(quarterly):
+    data = quarterly.copy()
+
+    prev = data.copy()
+    prev["year"] = prev["year"] + 1
+    prev = prev.rename(columns={"cpi_index": "cpi_prev"})
+
+    q = data.merge(
+        prev[["state", "year", "quarter", "cpi_prev"]],
+        on=["state", "year", "quarter"],
+        how="left"
+    )
+
+    q["cpi_yoy"] = np.where(
+        q["cpi_prev"] > 0,
+        (q["cpi_index"] / q["cpi_prev"] - 1) * 100,
+        np.nan
+    )
+
+    logger.info(
+        f"Calculated YoY inflation: {q['cpi_yoy'].notna().sum()} valid values "
+        f"out of {len(q)} rows"
+    )
+
+    q = q.drop(columns=["cpi_prev"])
+
+    return q
+
+
 if __name__ == "__main__":
     cpi = load_cpi()
     print(cpi.shape)
@@ -43,3 +74,8 @@ if __name__ == "__main__":
     quarterly = to_quarterly(cpi)
     print(quarterly.shape)
     print(quarterly["n_months"].value_counts())
+
+    q = add_yoy(quarterly)
+    print(q.shape)
+    print(q["cpi_yoy"].describe())
+    print(q["cpi_yoy"].isna().sum())
