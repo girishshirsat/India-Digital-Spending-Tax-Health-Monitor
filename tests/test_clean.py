@@ -38,3 +38,19 @@ def test_one_row_per_key():
             f"{name}: found {duplicates} duplicate rows "
             f"for key columns {key_columns}"
         )
+
+def test_year_and_quarter_range():
+    for name in FILES:
+        df = load(name)
+
+        assert df["year"].min() >= 2018, (
+            f"{name}: year contains values below 2018"
+        )
+
+        assert df["year"].max() <= 2024, (
+            f"{name}: year contains values above 2024"
+        )
+
+        assert df["quarter"].isin([1, 2, 3, 4]).all(), (
+            f"{name}: quarter contains invalid values"
+        )
