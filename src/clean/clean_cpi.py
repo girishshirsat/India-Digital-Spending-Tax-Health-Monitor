@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
 
-from src.config import SNAPSHOT_DIR
+from src.config import SNAPSHOT_DIR, PROCESSED_DIR
 from src.utils.logger import get_logger
+from src.clean.state_utils import normalize_name, apply_mapping
 
 logger = get_logger(__name__)
 
@@ -66,16 +67,59 @@ def add_yoy(quarterly):
     return q
 
 
-if __name__ == "__main__":
+
+
+def merge_territories(q):
+    data = q.copy()
+    data["state"] = data["state"].apply(normalize_name)
+    data = apply_mapping(data, "cpi")
+
+    merged = data.groupby(["state", "year", "quarter"], as_index=False).agg(
+        cpi_yoy=("cpi_yoy", "mean"),
+        n_months=("n_months", "min"),
+    )
+    logger.info(f"Merged Dadra and Daman CPI: {len(q)} to {len(merged)} rows")
+    return merged
+
+
+
+def finish_cpi(m):
+    data = m.copy()
+
+    # Keep data from 2018 to 2024
+    data = data[data["year"].between(2018, 2024)].copy()
+
+    # Flag negative year-over-year inflation
+    data["cpi_yoy_negative"] = data["cpi_yoy"] < 0
+
+    # Match PhonePe column data types
+    data["year"] = data["year"].astype("int64")
+    data["quarter"] = data["quarter"].astype("int64")
+
+    logger.info(
+        f"Finalized CPI data: {len(data)} rows, "
+        f"{data['cpi_yoy_negative'].sum()} negative inflation values"
+    )
+
+    return data
+
+
+def save_cpi(df):
+    PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    path = PROCESSED_DIR / "cpi_state_quarter.parquet"
+    df.to_parquet(path, index=False)
+    logger.info(f"Saved CPI state-quarter table: {len(df)} rows")
+
+
+def run_cpi():
     cpi = load_cpi()
-    print(cpi.shape)
-    print(cpi.columns.tolist())
-
     quarterly = to_quarterly(cpi)
-    print(quarterly.shape)
-    print(quarterly["n_months"].value_counts())
-
     q = add_yoy(quarterly)
-    print(q.shape)
-    print(q["cpi_yoy"].describe())
-    print(q["cpi_yoy"].isna().sum())
+    merged = merge_territories(q)
+    final = finish_cpi(merged)
+    save_cpi(final)
+    return final
+
+
+if __name__ == "__main__":
+    run_cpi()
