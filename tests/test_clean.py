@@ -54,3 +54,32 @@ def test_year_and_quarter_range():
         assert df["quarter"].isin([1, 2, 3, 4]).all(), (
             f"{name}: quarter contains invalid values"
         )
+
+
+def test_filing_pct_valid():
+    df = load("gst_state_quarter.parquet")
+
+    filing_pct = df["filing_pct"].dropna()
+
+    assert filing_pct.min() >= 0, (
+        "gst_state_quarter.parquet: filing_pct contains values below 0"
+    )
+
+    assert filing_pct.max() <= 100, (
+        "gst_state_quarter.parquet: filing_pct contains values above 100"
+    )
+
+
+def test_row_counts():
+    expected_counts = {
+        "phonepe_state_quarter.parquet": 1008,
+        "gst_state_quarter.parquet": 2016,
+        "cpi_state_quarter.parquet": 977,
+    }
+
+    for name, expected in expected_counts.items():
+        df = load(name)
+
+        assert len(df) == expected, (
+            f"{name}: expected {expected} rows, found {len(df)}"
+        )
