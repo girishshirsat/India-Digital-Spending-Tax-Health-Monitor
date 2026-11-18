@@ -1,0 +1,4 @@
+DROP TABLE IF EXISTS dim_return_type;
+DROP TABLE IF EXISTS dim_txn_type;
+DROP TABLE IF EXISTS dim_date;
+DROP TABLE IF EXISTS dim_state;
