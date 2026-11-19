@@ -13,6 +13,11 @@ CPI_DIR = RAW_DIR /"cpi"
 NDAP_FILE = "Goods and Service Tax Returns.csv"
 CPI_FILE = "cpi_1520.xlsx"
 
+
+SQL_DIR = ROOT/"sql"
+SQL_ANALYSIS_DIR = SQL_DIR/"analysis"
+SQL_SCHEMA_DIR = SQL_DIR/"schema"
+
 YEARS = list(range(2018, 2025))
 QUARTERS = list(range(1, 5))
 
@@ -81,4 +86,9 @@ PHONEPE_URL = "https://raw.githubusercontent.com/PhonePe/pulse/refs/heads/master
 MAX_RETRIES = 3
 TIMEOUT = 20
 RETRY_WAIT = 2
+
+
+
+
+
 
