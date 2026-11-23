@@ -1,3 +1,10 @@
+DROP VIEW IF EXISTS vw_state_quarter_metrics;
+
+
+
+
+
+
 DROP TABLE IF EXISTS fact_upi_state_quarter;
 DROP TABLE IF EXISTS fact_upi_state_quarter_type;
 DROP TABLE IF EXISTS fact_gst_state_quarter;
