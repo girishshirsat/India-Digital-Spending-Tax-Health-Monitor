@@ -10,12 +10,19 @@ load_dotenv()
 logger = get_logger(__name__)
 
 
+
 def get_local_engine():
     return create_engine(os.getenv("LOCAL_DB_URL"))
 
 
 def get_neon_engine():
     return create_engine(os.getenv("NEON_DB_URL"))
+
+def get_readonly_engine():
+    url = os.getenv("NEON_READONLY_URL")
+    if not url:
+        raise ValueError("NEON_READONLY_URL is not present.")
+    return create_engine(url)
 
 
 def get_engine():
@@ -27,7 +34,9 @@ def get_engine():
         return get_local_engine()
     elif target == "neon":
         return get_neon_engine()
+    elif target == "readonly":
+        return get_readonly_engine()
     else:
         raise ValueError(
-            f"Invalid DB_TARGET: '{target}'. Choose 'local' or 'neon'."
+            f"Invalid DB_TARGET: '{target}'. Choose 'local' or 'neon' or 'readonly'."
         )
