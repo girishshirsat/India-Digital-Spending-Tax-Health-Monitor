@@ -9,3 +9,4 @@ logs/*
 !logs/.gitkeep
 .DS_Store
 data/raw/cpi/*.xlsx
+output/
