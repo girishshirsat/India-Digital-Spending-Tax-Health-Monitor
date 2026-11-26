@@ -40,3 +40,75 @@ LEFT JOIN fact_gst_state_quarter g3
     AND g3.return_type_id = 2;
 
 
+
+
+
+
+CREATE OR REPLACE VIEW vw_divergence_scores AS
+WITH upi AS (
+    SELECT
+        state_name,
+        year,
+        quarter,
+        upi_yoy_pct,
+        (
+            upi_yoy_pct - AVG(upi_yoy_pct) OVER q) / NULLIF(STDDEV_POP(upi_yoy_pct) OVER q, 0) AS upi_z
+
+    FROM (
+        SELECT
+            state_name,
+            year,
+            quarter,
+            100.0 * (total_amount - LAG(total_amount, 4) OVER w)/ NULLIF(LAG(total_amount, 4) OVER w, 0)AS upi_yoy_pct
+
+        FROM vw_state_quarter_metrics
+
+        WINDOW w AS (
+            PARTITION BY state_name
+            ORDER BY year, quarter
+        )
+    ) yoy
+
+    WINDOW q AS (PARTITION BY year, quarter)
+),
+gst AS (
+    SELECT
+        state_name,
+        year,
+        quarter,
+        gst_yoy_pct,
+        (gst_yoy_pct - AVG(gst_yoy_pct) OVER q) / NULLIF(STDDEV_POP(gst_yoy_pct) OVER q, 0) AS gst_z
+
+    FROM (
+        SELECT
+            state_name,
+            year,
+            quarter,
+            100.0 * (gstr3b_total_filed - LAG(gstr3b_total_filed, 4) OVER w) / NULLIF(LAG(gstr3b_total_filed, 4) OVER w, 0)AS gst_yoy_pct
+
+        FROM vw_state_quarter_metrics
+
+        WINDOW w AS (
+            PARTITION BY state_name
+            ORDER BY year, quarter
+        )
+    ) yoy
+
+    WINDOW q AS (PARTITION BY year, quarter)
+)
+SELECT
+    u.state_name,
+    u.year,
+    u.quarter,
+    ROUND(u.upi_yoy_pct, 2) AS upi_yoy_pct,
+    ROUND(g.gst_yoy_pct, 2) AS gst_yoy_pct,
+    ROUND(u.upi_z, 2) AS upi_z,
+    ROUND(g.gst_z, 2) AS gst_z,
+    ROUND(u.upi_z - g.gst_z, 2) AS divergence_score,
+    ABS(u.upi_z - g.gst_z) > 1.5 AS flag
+
+FROM upi u
+LEFT JOIN gst g
+    ON u.state_name = g.state_name
+    AND u.year = g.year
+    AND u.quarter = g.quarter;

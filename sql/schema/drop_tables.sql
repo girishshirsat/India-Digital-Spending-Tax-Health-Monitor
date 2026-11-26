@@ -1,3 +1,4 @@
+DROP VIEW IF EXISTS vw_divergence_scores;
 DROP VIEW IF EXISTS vw_state_quarter_metrics;
 
 
