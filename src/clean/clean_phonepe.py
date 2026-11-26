@@ -104,9 +104,7 @@ def save_phonepe(df, totals):
         f"State-quarter totals: {len(totals)} rows"
     )
 
-
-
-if __name__ == "__main__":
+def run_phonepe():
     df = load_all()
 
     totals = build_totals(df)
@@ -115,12 +113,24 @@ if __name__ == "__main__":
 
     flagged = flag_drops(totals)
 
-    print("\nTotal big drops:", flagged["big_drop"].sum())
+    # Preserve the big-drop count
+    logger.info(
+        "Big drops flagged: %s",
+        flagged["big_drop"].sum()
+    )
 
-    print(
-        flagged[flagged["big_drop"]][
-            ["state", "year", "quarter"]
-        ]
+    # Preserve the list of flagged state-quarters
+    big_drops = flagged[flagged["big_drop"]][
+        ["state", "year", "quarter"]
+    ]
+
+    logger.info(
+        "Big-drop state-quarters:\n%s",
+        big_drops.to_string(index=False)
     )
 
     save_phonepe(df, flagged)
+
+
+if __name__ == "__main__":
+    run_phonepe()
