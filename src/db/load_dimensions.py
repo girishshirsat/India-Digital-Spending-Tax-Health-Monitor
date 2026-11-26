@@ -2,7 +2,7 @@ from sqlalchemy import text
 
 from src.clean.state_utils import build_dim_state
 from src.config import YEARS, QUARTERS
-from src.db.connection import get_local_engine
+from src.db.connection import get_engine
 from src.utils.logger import get_logger
 
 
@@ -111,7 +111,7 @@ def main():
     logger.info("Starting dim load")
 
     try:
-        engine = get_local_engine()
+        engine = get_engine()
 
         with engine.begin() as conn:
             load_dim_state(conn)

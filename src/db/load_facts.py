@@ -4,7 +4,7 @@ import pandas as pd
 from sqlalchemy import text
 
 from src.config import PROCESSED_DIR
-from src.db.connection import get_local_engine
+from src.db.connection import get_engine
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -225,7 +225,7 @@ def check_type_totals_match(conn):
 def main():
     logger.info("Starting facts load")
     try:
-        engine = get_local_engine()
+        engine = get_engine()
         with engine.begin() as conn:  
             counts = {
                 "fact_upi_state_quarter": load_fact_upi_state_quarter(conn),

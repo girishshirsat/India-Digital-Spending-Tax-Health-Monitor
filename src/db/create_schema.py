@@ -2,7 +2,7 @@
 from sqlalchemy import text
 
 from src.config import SQL_SCHEMA_DIR
-from src.db.connection import get_local_engine
+from src.db.connection import get_engine
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -20,7 +20,7 @@ def main():
     ]
 
     try:
-        engine = get_local_engine()
+        engine = get_engine()
 
         with engine.begin() as conn:
             for path in sql_files:

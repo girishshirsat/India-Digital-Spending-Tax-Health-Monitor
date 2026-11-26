@@ -2,7 +2,7 @@ import pandas as pd
 from sqlalchemy import text
 
 from src.config import ROOT, SQL_ANALYSIS_DIR
-from src.db.connection import get_local_engine
+from src.db.connection import get_engine
 from src.utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -19,7 +19,7 @@ def run_query(conn, path):
 
 def main():
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    engine = get_local_engine()
+    engine = get_engine()
     results = {}
 
     with engine.connect() as conn:
